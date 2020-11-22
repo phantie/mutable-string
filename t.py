@@ -4,6 +4,7 @@ from string import ascii_letters
 from random import shuffle
 from functools import partial
 from time import time
+from array import array
 
 def split_every(n, l):
     return list(l[i:i+n] for i in range(0, len(l), n))
@@ -27,8 +28,12 @@ kit = dict (
     e3500 = split_long_str(3500),
 )
 
-for k, v in kit.items():
-    print(k, timeit(lambda: ''.join(v), number=10000))
+# a = array('u', '123')
+# b = array('u', '012')
+# print(a[0] is b[1])
+
+# for k, v in kit.items():
+#     print(k, timeit(lambda: ''.join(v), number=10000))
 
     # /timeit(lambda: hash(v), number=10000))
 

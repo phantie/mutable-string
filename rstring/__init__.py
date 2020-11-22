@@ -6,7 +6,6 @@ from types import FunctionType
 
 __version__ = '0.1'
 
-s = 32
 
 def split_every(l, n):
     return list(l[i:i+n] for i in range(0, len(l), n))
@@ -25,11 +24,15 @@ class String:
     def __eq__(self, _):
         if isinstance(_, self.__class__):
             return self.has == _.has
+        elif isinstance(_, str):
+            return self.as_str() == _
         raise False
 
     def __ne__(self, _):
         if isinstance(_, self.__class__):
             return self.has != _.has
+        elif isinstance(_, str):
+            return self.as_str() != _
         return True
 
     @classmethod
@@ -57,3 +60,32 @@ class String:
 
     __len__ = len = lambda self: self.has.__len__()
     length = property(len)
+
+    def as_bytes(self, encoding):
+        return list(bytearray(str(self), encoding))
+
+    def truncate(self, new_len):
+        self.has = self.has[:new_len]
+
+    def pop(self):
+        try:
+            return some(self.has.pop())
+        except IndexError:
+            return none
+
+    def remove(self, idx):
+        try:
+            _ = self.has[idx]
+            del self.has[idx]
+            return some(_)
+        except IndexError:
+            return none
+
+    def retain(self, f):
+        self.has = self.init_store((_ for _ in self.has if f(_)))
+
+    def insert(self, idx, c):
+        if not (0 <= idx <= len(self)):
+            raise IndexError
+
+        self.has.insert(idx, c)

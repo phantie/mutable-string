@@ -1,5 +1,6 @@
 import pytest
 from rstring import String
+from ruption import *
 from array import array
 
 def test_instance_creation():
@@ -7,9 +8,10 @@ def test_instance_creation():
     assert str(String.new()) == ''
 
 def test_equality():
-    assert String() == String.new()
+    assert String() == String.new() == ''
+    assert String.from_str('123') == '123'
     assert String.from_str('me') != String.from_str('you')
-    assert String() != ''
+    assert String.from_str('-') != '+'
 
 @pytest.fixture
 def base():
@@ -66,3 +68,64 @@ def test_convert_to_str(base):
     assert all(getattr(base, meth)() == '123' for meth in method_names)
     base.push('4')
     assert all(getattr(base, meth)() == '1234' for meth in method_names)
+
+def test_as_bytes(base):
+    assert base.as_bytes('utf-8') == []
+    base.push('1')
+    assert base.as_bytes('utf-8') == [49]
+    base.push_str('23')
+    assert base.as_bytes('utf-8') == [49, 50, 51]
+
+def test_truncate(base):
+    base.truncate(10)
+    assert base == ''
+    base.push_str('hello')
+    base.truncate(4)
+    assert base == 'hell'
+    base.truncate(1)
+    assert base == 'h'
+    base.push_str('ero ain`t ya')
+    base.truncate(4)
+    assert base == 'hero'
+
+def test_pop(base):
+    base.push_str('1234')
+    assert base.pop() == some('4')
+    assert base.pop() == some('3')
+    assert base.pop() == some('2')
+    assert base.pop() == some('1')
+    assert base.pop() == none
+
+def test_remove(base):
+    base.push_str('1234')
+    assert base.remove(0) == some('1')
+    assert base == '234'
+    assert base.remove(1) == some('3')
+    assert base == '24'
+    assert base.remove(0) == some('2')
+    assert base.remove(0) == some('4')
+    assert base.remove(0) == none
+
+def test_retain():
+    base = String.from_str('f_o_ob_ar')
+    base.retain(lambda o: o != '_')
+    assert base == 'foobar'
+
+    base = String.from_str('make(something(nice))')
+    base.retain(lambda o: o == '(' or o == ')')
+    base == '(())'
+
+    base = String.from_str('   #  among   spaces      ')
+    base.retain(lambda o: o != ' ')
+    base == '#amongspaces'
+
+def test_insert(base):
+    base.insert(0, '1')
+    base.insert(1, '2')
+    assert base == '12'
+    base.insert(2, '3')
+    assert base == '123'
+    with pytest.raises(IndexError):
+        base.insert(-1, '4')
+    with pytest.raises(IndexError):
+        base.insert(100, '4')
