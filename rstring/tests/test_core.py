@@ -36,6 +36,7 @@ def test_length(base):
     def assert_len_is(_: int):
         assert len(base) == _
         assert base.len() == _
+        assert base.length == _
 
     assert_len_is(0)
     base.push_str('hello')

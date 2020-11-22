@@ -6,9 +6,10 @@ from types import FunctionType
 
 __version__ = '0.1'
 
+s = 32
 
-class Node:
-    pass
+def split_every(l, n):
+    return list(l[i:i+n] for i in range(0, len(l), n))
 
 class String:
 
@@ -34,7 +35,7 @@ class String:
     @classmethod
     def from_str(cls, string: str):
         new = cls()
-        new.has = cls.init_store(iter(string))
+        new.push_str(string)
         return new
 
     @classmethod
@@ -47,12 +48,12 @@ class String:
         self.has.append(c)
 
     def push_str(self, string):
-        self.has.extend(iter(string))
+        self.has.fromunicode(string)
 
-    __str__ = to_str = as_str = lambda self: "".join(self.has)
+    def __str__(self):
+        return self.has.tounicode()
 
-    def __len__(self):
-        return self.has.__len__()
+    to_str = as_str = __str__
 
-    def len(self):
-        return self.has.__len__()
+    __len__ = len = lambda self: self.has.__len__()
+    length = property(len)
