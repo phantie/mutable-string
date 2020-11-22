@@ -1,15 +1,10 @@
-from ruption import *
 from functools import partialmethod, partial
 from array import array
-from abc import ABC, abstractmethod
-from types import FunctionType
+
+from ruption import *
+
 
 __version__ = '0.1'
-
-
-def split_every(l, n):
-    return list(l[i:i+n] for i in range(0, len(l), n))
-
 
 
 class String:
@@ -77,21 +72,16 @@ class String:
         return list(bytearray(str(self), encoding))
 
     def __getitem__(self, key):
-        if isinstance(key, slice):
-            return self.has.__getitem__(key)
-        elif isinstance(key, int):
-            return self.has[key]
-        else:
-            raise TypeError
+        return self.has.__getitem__(key)
 
     def __setitem__(self, key, value):
-        self.has[key] = value
+        self.has.__setitem__(key, value)
 
     def __delitem__(self, key):
-        del self.has[key]
+        self.has.__delitem__(key)
 
     def truncate(self, new_len):
-        self.has = self[:new_len]
+        self[:] = self[:new_len]
 
     def pop(self):
         try:
@@ -108,7 +98,7 @@ class String:
             return none
 
     def retain(self, f):
-        self.has = self.init_store((_ for _ in self.has if f(_)))
+        self[:] = self.init_store((_ for _ in self.has if f(_)))
 
     def check_bounds(self, idx):
         if not (0 <= idx <= len(self)):
@@ -140,7 +130,7 @@ class String:
         return _
 
     def clear(self):
-        self.has = self.init_store()
+        self[:] = self.init_store()
 
     def drain(self, rng):
         self.check_range_bounds(rng)
@@ -156,7 +146,7 @@ class String:
         self.check_range_bounds(rng)
 
         if rng.step != 1:
-            raise TypeError(f"Step in range {rng} must be 1. Period.")
+            raise TypeError(f"Step in {rng} must be 1. Period.")
 
         self.drain(rng)
         self.insert_str(rng[0], replace_with)
