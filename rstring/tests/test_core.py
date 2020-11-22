@@ -55,3 +55,13 @@ def test_store(base):
     base.push('5')
     assert base.has == String.init_store('12345')
     assert String.from_str('1234').has == String.init_store('1234')
+
+def test_convert_to_str(base):
+
+    method_names = ('__str__', 'as_str', 'to_str')
+
+    assert all(getattr(base, meth)() == '' for meth in method_names)
+    base.push_str('123')
+    assert all(getattr(base, meth)() == '123' for meth in method_names)
+    base.push('4')
+    assert all(getattr(base, meth)() == '1234' for meth in method_names)
