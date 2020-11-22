@@ -129,3 +129,63 @@ def test_insert(base):
         base.insert(-1, '4')
     with pytest.raises(IndexError):
         base.insert(100, '4')
+
+def test_insert_str(base):
+    base.push_str('123')
+    
+    base.insert_str(1, '456')
+    assert base == '145623'
+    base.insert_str(6, '789')
+    assert base == '145623789'
+
+def test_falsity(base):
+    assert not base
+    assert base.is_empty()
+    base.push('0')
+    assert base
+    assert not base.is_empty()
+
+def test_split_off(base):
+    base.push_str("Hello, World")
+    world = base.split_off(7)
+    assert base == "Hello, "
+    assert world == "World"
+
+    nothing = world.split_off(5)
+    assert nothing == ""
+    assert world == "World"
+
+    with pytest.raises(IndexError):
+        world.split_off(6)
+
+    all = world.split_off(0)
+    assert all == "World"
+    assert world == ""
+
+def test_clear(base):
+    base.push('c')
+    assert base
+    base.clear()
+    assert not base
+
+def test_drain():
+    s = String.from_str("α is alpha, β is beta")
+    beta_offset = 12
+
+    t = s.drain(range(beta_offset))
+    assert t == "α is alpha, "
+    assert s == "β is beta"
+
+def test_replace_range():
+    s = String.from_str("α is alpha, β is beta")
+    beta_offset = 12
+
+    s.replace_range(range(beta_offset), "Α is capital alpha; ")
+    assert s == "Α is capital alpha; β is beta"
+
+    s = String.from_str("12345")
+    s.replace_range(range(3), "543")
+    assert s == '54345'
+
+    with pytest.raises(TypeError):
+        s.replace_range(range(5, -1, -1), "won't work")
