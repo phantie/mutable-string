@@ -31,7 +31,7 @@ class String:
 
         raise TypeError(f'{cls.__qualname__} cannot be created from {_.__class__}')
 
-    str_attrs = set([_ for _ in dir('') if not _.startswith('__')])
+    str_attrs = set(_ for _ in dir(str) if not _.startswith('__'))
 
     def __getattr__(self, name):
         if name == 'has':
@@ -221,3 +221,32 @@ class String:
             return take(self.copy()).insert_str(0, _).unwrap()
         else:
             raise NotImplementedError(_)
+
+    def strip_prefix(self, prefix, recurr=False):
+        if len(prefix) > len(self):
+            return
+
+        for i, c in enumerate(prefix):
+            if self[i] != c:
+                break
+        else:
+            self[:] = self[len(prefix):]
+            if recurr:
+                self.strip_prefix(prefix, True)
+
+    removeprefix = strip_prefix
+
+    def strip_suffix(self, suffix, recurr=False):
+        if len(suffix) > len(self):
+            return
+
+        for c1, c2 in zip(self[-len(suffix):], suffix):
+            if c1 != c2:
+                break
+        else:
+            self[:] = self[:len(self) - len(suffix)]
+            if recurr:
+                self.strip_suffix(suffix, True)
+
+
+    removesuffix = strip_suffix

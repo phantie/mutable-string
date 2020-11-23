@@ -276,3 +276,57 @@ def test_convenient_creation():
     # String.from_iterable
     assert String(iter('1090')) == '1090'
     assert String((str(i) for i in range(7) if i%2)) == '135'
+
+def test_strip_prefix():
+    s = String('foofoo')
+    s.strip_prefix('foo')
+    assert s == 'foo'
+
+    s = String('foo' * 10 + 'boo')
+    s.strip_prefix('foo', recurr=True)
+    assert s == 'boo'
+
+    s = String('bar:foo')
+    s.strip_prefix('bar:')
+    assert s == 'foo'
+
+    s = String('bar:foo')
+    s.strip_prefix('baz:')
+    assert s == 'bar:foo'
+
+    s = String('bar:foo')
+    s.strip_prefix('baz:123456')
+    assert s == 'bar:foo'
+
+    s = String('123')
+    s.strip_prefix('123')
+    assert s == ''
+
+    s = String('123123123123some')
+    s.strip_prefix('123', recurr=True)
+    assert s == 'some'
+    
+def test_strip_suffix():
+    s = String('foofoo')
+    s.strip_suffix('foo')
+    assert s == 'foo'
+
+    s = String('foofoo1')
+    s.strip_suffix('foo')
+    assert s == 'foofoo1'
+    
+    s = String('123')
+    s.strip_suffix('123456')
+    assert s == '123'
+
+    s = String('1234567890abcabc')
+    s.strip_suffix('abc')
+    assert s == '1234567890abc'
+
+    s = String('1234567890abcabc')
+    s.strip_suffix('abc', recurr=True)
+    assert s == '1234567890'
+
+    s = String('123')
+    s.strip_suffix('123')
+    assert s == ''
