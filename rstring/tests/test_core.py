@@ -196,8 +196,13 @@ def test_replace_range():
         s.replace_range(range(5, -1, -1), "won't work")
 
 def test_map(base):
-    assert String.from_str('usa').map(lambda _: _.upper()) == 'USA'
-    assert String.from_str('DOWNER').map(lambda _: _.lower()) == 'downer'
+    usa = String.from_str('usa')
+    usa.map(lambda _: _.upper())
+    assert usa == 'USA'
+
+    DOWNER = String.from_str('DOWNER')
+    DOWNER.map(lambda _: _.lower())
+    assert DOWNER == 'downer'
 
 
 def test_chars(base):
@@ -306,6 +311,10 @@ def test_strip_prefix():
     s.strip_prefix('123', recurr=True)
     assert s == 'some'
     
+    s = String('123')
+    s.strip_prefix('')
+    assert s == '123'
+
 def test_strip_suffix():
     s = String('foofoo')
     s.strip_suffix('foo')
@@ -330,6 +339,10 @@ def test_strip_suffix():
     s = String('123')
     s.strip_suffix('123')
     assert s == ''
+
+    s = String('123')
+    s.strip_suffix('')
+    assert s == '123'
 
 
 def test_multiply():
