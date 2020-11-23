@@ -265,3 +265,20 @@ def test_addition():
     assert isinstance(a1 + a1, String)
     assert isinstance(a2 + b1, String)
     assert isinstance(b2 + b1, String)
+
+def test_convenient_creation():
+    # String.from_str
+    assert String('123') == '123'
+    assert String(f'{str.__name__}') == 'str'
+    
+    # String.from_unicode_array
+    assert String(array('u', '123')) == '123'
+    assert String(array('u', ['a', 'b', 'c'])) == 'abc'
+
+    # String.from_encoding
+    assert String(b'123', encoding = 'utf8') == '123'
+    assert String(b'\xff\xfe1\x002\x003\x00', 'utf16') == '123'
+
+    # String.from_iterable
+    assert String(iter('1090')) == '1090'
+    assert String((str(i) for i in range(7) if i%2)) == '135'

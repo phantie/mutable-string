@@ -5,7 +5,7 @@ from ruption import *
 from take import take
 
 
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class String:
@@ -13,8 +13,29 @@ class String:
 
     init_store = partial(array, 'u')
 
-    def __init__(self):
-        self.has = self.init_store()
+    def __new__(cls, _=None, encoding=None):
+        if _ is None:
+            return super().__new__(cls)
+        instance_of = partial(isinstance, _)
+
+        if instance_of(str):
+            return cls.from_str(_)
+        elif instance_of(array) and _.typecode == 'u':
+            return cls.from_unicode_array(_)
+        elif instance_of(bytes):
+            return cls.from_encoding(_, encoding)
+        
+        try:
+            iter(_)
+        except TypeError: ...
+        else:
+            return cls.from_iterable(_)
+
+        raise TypeError(f'{cls.__qualname__} cannot be created from {_.__class__}')
+
+    def __init__(self, _=None, encoding=None):
+        if not hasattr(self, 'has'):
+            self.has = self.init_store()
 
     @classmethod
     def new(cls):
