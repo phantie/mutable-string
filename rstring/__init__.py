@@ -68,6 +68,9 @@ class String:
     __len__ = len = lambda self: self.has.__len__()
     length = property(len)
 
+    # def bytes(self, encoding): # TOFIX
+    #     return bytearray(str(self), encoding)
+
     def as_bytes(self, encoding):
         return list(bytearray(str(self), encoding))
 
@@ -98,7 +101,13 @@ class String:
             return none
 
     def retain(self, f):
-        self[:] = self.init_store((_ for _ in self.has if f(_)))
+        self.set_store_from_iterable((_ for _ in self.has if f(_)))
+
+    filter = retain
+
+    def map(self, f):
+        self.set_store_from_iterable(map(f, self[:]))
+        return self
 
     def check_bounds(self, idx):
         if not (0 <= idx <= len(self)):
@@ -150,3 +159,24 @@ class String:
 
         self.drain(rng)
         self.insert_str(rng[0], replace_with)
+
+    def set_store_from_iterable(self, iterable):
+        self[:] = self.init_store(iterable)
+
+
+    def split_at_mut(self, mid) -> (str, str): # SKIP FOR A SEC
+        first = self[:mid].as_str()
+        last = self[mid:].as_str()
+        return first, last
+
+    def chars(self):
+        return iter(self)
+
+    def char_indices(self):
+        return enumerate(self)
+
+
+
+
+    # def split_whitespace(self):
+    #     return str(self).split()

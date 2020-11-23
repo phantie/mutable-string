@@ -119,6 +119,11 @@ def test_retain():
     base.retain(lambda o: o != ' ')
     base == '#amongspaces'
 
+def test_filter():
+    base = String.from_str('sup_#$..er')
+    base.filter(lambda o: o.isalpha())
+    assert base == 'super'
+
 def test_insert(base):
     base.insert(0, '1')
     base.insert(1, '2')
@@ -189,3 +194,31 @@ def test_replace_range():
 
     with pytest.raises(TypeError):
         s.replace_range(range(5, -1, -1), "won't work")
+
+def test_map(base):
+    assert String.from_str('usa').map(lambda _: _.upper()) == 'USA'
+    assert String.from_str('DOWNER').map(lambda _: _.lower()) == 'downer'
+
+
+def test_split_at_mut():
+    pass
+
+def test_chars(base):
+    base.push_str('abc')
+    assert list(base.chars()) == ['a', 'b', 'c']
+    base.push_str('def')
+    assert list(base.chars()) == ['a', 'b', 'c', 'd', 'e', 'f']
+
+def test_char_indices(base):
+    base.push_str('abcd')
+    _ = base.char_indices()
+    assert next(_) == (0, 'a')
+    assert next(_) == (1, 'b')
+    assert next(_) == (2, 'c')
+    assert next(_) == (3, 'd')
+    with pytest.raises(StopIteration):
+        next(_)
+
+# def test_split_whitespace(base):
+#     base.push_str("A   few   words")
+#     assert base.split_whitespace() == ['A', 'few', 'words']
