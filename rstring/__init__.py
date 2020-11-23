@@ -5,6 +5,7 @@ from ruption import *
 from take import take
 
 
+
 class String:
     'Mutable, change-friendly, feature-rich String.'
 
@@ -72,7 +73,7 @@ class String:
     @classmethod
     def from_unicode_array(cls, uar):
         new = cls()
-        new[:] = uar[:]
+        new[:] = uar
         return new
 
     @classmethod
@@ -190,12 +191,6 @@ class String:
 
     def set_store_from_iterable(self, iterable):
         self[:] = self.init_store(iterable)
-
-
-    def split_at_mut(self, mid) -> (str, str): # SKIP FOR A SEC
-        first = self[:mid].as_str()
-        last = self[mid:].as_str()
-        return first, last
 
     def chars(self):
         return iter(self)

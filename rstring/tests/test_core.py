@@ -200,9 +200,6 @@ def test_map(base):
     assert String.from_str('DOWNER').map(lambda _: _.lower()) == 'downer'
 
 
-def test_split_at_mut():
-    pass
-
 def test_chars(base):
     base.push_str('abc')
     assert list(base.chars()) == ['a', 'b', 'c']
@@ -219,9 +216,6 @@ def test_char_indices(base):
     with pytest.raises(StopIteration):
         next(_)
 
-# def test_split_whitespace(base):
-#     base.push_str("A   few   words")
-#     assert base.split_whitespace() == ['A', 'few', 'words']
 
 def test_copy(base):
     new = base.copy()
