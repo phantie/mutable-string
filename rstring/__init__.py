@@ -5,9 +5,6 @@ from ruption import *
 from take import take
 
 
-__version__ = '0.2'
-
-
 class String:
     'Mutable, change-friendly, feature-rich String.'
 
@@ -33,9 +30,11 @@ class String:
 
         raise TypeError(f'{cls.__qualname__} cannot be created from {_.__class__}')
 
-    def __init__(self, _=None, encoding=None):
-        if not hasattr(self, 'has'):
-            self.has = self.init_store()
+    def __getattr__(self, name):
+        if name == 'has':
+            self.has = has = self.init_store()
+            return has
+        raise AttributeError(name)
 
     @classmethod
     def new(cls):
