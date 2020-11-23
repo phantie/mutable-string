@@ -34,7 +34,7 @@ class String:
 
         raise TypeError(f'{cls.__qualname__} cannot be created from {_.__class__}')
 
-    _str_attrs = set(_ for _ in dir(str) if not _.startswith('__'))
+    _str_attrs = set(_ for _ in dir(str) if not _.startswith('__')).union(set(('removeprefix', 'removesuffix')))
 
     def __getattr__(self, name):
         if name == 'has':
@@ -261,6 +261,13 @@ class String:
             raise NotImplementedError
 
     repeat = __rmul__ = __mul__
+
+    @classmethod
+    def has_custom_impl(cls, methodname):
+        if methodname in cls._str_attrs:
+            return methodname in dir(cls)
+        else:
+            raise AttributeError(f'{str} has no method named "{methodname}" ')
 
 Self = NewType('Self', String)
 u = NewType('u', str) # unicode character

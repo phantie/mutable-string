@@ -350,3 +350,7 @@ def test_multiply():
     assert 3 * String('123') == '123' * 3
     assert 10 * String() == ''
     assert String('1').repeat(3) == '111'
+
+def test_has_custom_impl():
+    assert String.has_custom_impl('removeprefix')
+    assert String.has_custom_impl('removesuffix')
