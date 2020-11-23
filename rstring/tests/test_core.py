@@ -330,3 +330,10 @@ def test_strip_suffix():
     s = String('123')
     s.strip_suffix('123')
     assert s == ''
+
+
+def test_multiply():
+    assert String('123') * 3 == '123' * 3
+    assert 3 * String('123') == '123' * 3
+    assert 10 * String() == ''
+    assert String('1').repeat(3) == '111'

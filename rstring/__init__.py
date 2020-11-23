@@ -14,6 +14,7 @@ class String:
     def __new__(cls, _=None, encoding=None):
         if _ is None:
             return super().__new__(cls)
+
         instance_of = partial(isinstance, _)
 
         if instance_of(str):
@@ -31,13 +32,13 @@ class String:
 
         raise TypeError(f'{cls.__qualname__} cannot be created from {_.__class__}')
 
-    str_attrs = set(_ for _ in dir(str) if not _.startswith('__'))
+    _str_attrs = set(_ for _ in dir(str) if not _.startswith('__'))
 
     def __getattr__(self, name):
         if name == 'has':
             self.has = has = self.init_store()
             return has
-        elif name in self.str_attrs:
+        elif name in self._str_attrs:
             return lambda *args, **kwargs: getattr(str, name)(str(self), *args, **kwargs)
 
         raise AttributeError(name)
@@ -250,3 +251,13 @@ class String:
 
 
     removesuffix = strip_suffix
+
+    def __mul__(self, other):
+        if isinstance(other, int):
+            return self.from_unicode_array(self[:]*other)
+        else:
+            raise NotImplementedError
+
+    __rmul__ = __mul__
+
+    repeat = lambda self, n: self * n
