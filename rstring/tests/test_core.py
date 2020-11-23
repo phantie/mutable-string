@@ -1,5 +1,5 @@
 import pytest
-from rstring import String
+from .. import String
 from ruption import *
 from array import array
 
@@ -222,3 +222,46 @@ def test_char_indices(base):
 # def test_split_whitespace(base):
 #     base.push_str("A   few   words")
 #     assert base.split_whitespace() == ['A', 'few', 'words']
+
+def test_copy(base):
+    new = base.copy()
+    base.push_str('update')
+    assert new == ''
+    assert base == 'update'
+
+
+def test_from_iterable():
+    assert String.from_iterable(('1', '2', '3')) == '123'
+    assert String.from_iterable('123') == '123'
+
+def test_from_unicode_array():
+    assert String.from_unicode_array(array('u', ('a', 'b'))) == 'ab'
+    assert String.from_unicode_array(array('u', '123')) == '123'
+
+def test_extend(base):
+    base.extend(('1', '2', '3'))
+    assert base == '123'
+    base.clear()
+    base.extend('some str')
+    assert base == 'some str'
+
+def test_addition():
+    a1 = String.from_str('yo')
+    b1 = String.from_str('ho')
+    a2 = 'yo'
+    b2 = 'ho'
+
+    assert a1 + a1 == 'yoyo'
+    assert a1 + b1 == 'yoho'
+    assert a1 + a2 == 'yoyo'
+    assert a1 + b2 == 'yoho'
+    assert a2 + a1 == 'yoyo'
+    assert a2 + b1 == 'yoho'
+    assert b2 + a1 == 'hoyo'
+    assert b2 + b1 == 'hoho'
+
+    assert isinstance(a1 + a2, String)
+    assert isinstance(a2 + a1, String)
+    assert isinstance(a1 + a1, String)
+    assert isinstance(a2 + b1, String)
+    assert isinstance(b2 + b1, String)

@@ -2,12 +2,14 @@ from functools import partialmethod, partial
 from array import array
 
 from ruption import *
+from take import take
 
 
 __version__ = '0.1'
 
 
 class String:
+    'Mutable, change-friendly, feature-rich String.'
 
     init_store = partial(array, 'u')
 
@@ -41,8 +43,16 @@ class String:
     @classmethod
     def from_iterable(cls, iterable):
         new = cls()
-        for i in iterable:
-            new.push(i)
+        new.extend(iterable)
+        return new
+
+    def extend(self, iterable):
+        self.has.extend(iterable)
+
+    @classmethod
+    def from_unicode_array(cls, uar):
+        new = cls()
+        new[:] = uar[:]
         return new
 
     @classmethod
@@ -68,8 +78,6 @@ class String:
     __len__ = len = lambda self: self.has.__len__()
     length = property(len)
 
-    # def bytes(self, encoding): # TOFIX
-    #     return bytearray(str(self), encoding)
 
     def as_bytes(self, encoding):
         return list(bytearray(str(self), encoding))
@@ -134,7 +142,7 @@ class String:
     def split_off(self, at):
         self.check_bounds(at)
 
-        _ = self.from_iterable(self[at:])
+        _ = self.from_unicode_array(self[at:])
         self.truncate(at)
         return _
 
@@ -149,7 +157,7 @@ class String:
         for i, r in enumerate(rng):
             _.append(self.remove(r-i).unwrap())
 
-        return self.from_iterable(_)
+        return self.from_unicode_array(_)
 
     def replace_range(self, rng, replace_with):
         self.check_range_bounds(rng)
@@ -175,8 +183,21 @@ class String:
     def char_indices(self):
         return enumerate(self)
 
+    def copy(self):
+        new = self.new()
+        new[:] = self[:]
+        return new
 
+    def __add__(self, _):
+        if isinstance(_, self.__class__):
+            return take(self.copy()).extend(_.has).unwrap()
+        elif isinstance(_, str):
+            return take(self.copy()).push_str(_).unwrap()
+        else:
+            raise NotImplementedError(_)
 
-
-    # def split_whitespace(self):
-    #     return str(self).split()
+    def __radd__(self, _):
+        if isinstance(_, str):
+            return take(self.copy()).insert_str(0, _).unwrap()
+        else:
+            raise NotImplementedError(_)
