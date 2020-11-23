@@ -31,10 +31,15 @@ class String:
 
         raise TypeError(f'{cls.__qualname__} cannot be created from {_.__class__}')
 
+    str_attrs = set([_ for _ in dir('') if not _.startswith('__')])
+
     def __getattr__(self, name):
         if name == 'has':
             self.has = has = self.init_store()
             return has
+        elif name in self.str_attrs:
+            return lambda *args, **kwargs: getattr(str, name)(str(self), *args, **kwargs)
+
         raise AttributeError(name)
 
     @classmethod
