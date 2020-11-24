@@ -363,3 +363,23 @@ def test_lines():
     assert String('foo\r\nbar\n\nbaz\n').lines() == ['foo', 'bar', '', 'baz']
     assert String('foo\nbar\n\r\nbaz').lines() == ['foo', 'bar', '', 'baz']
     assert String('foo\nbar\n\r\nbaz\n\x20\x20').lines() == ['foo', 'bar', '', 'baz', '  ']
+
+def test_in():
+    assert '123' in String('asdas123123a')
+    assert String('123') in String('asdas123123a')
+    assert array('u', '123') in String('asdas123123a')
+    assert String('asdas123123a').contains('123')
+
+def test_split_inclusive():
+    assert list(String('123\n345\n678\n').split_inclusive('\n')) == ['123\n', '345\n', '678\n']
+    assert list(String('123\n345\n678').split_inclusive('\n')) == ['123\n', '345\n', '678']
+    assert list(String('aaaaa').split_inclusive('b')) == ['aaaaa']
+    assert list(String().split_inclusive('Q')) == []
+    assert list(String(' ').split_inclusive('Q')) == [' ']
+    with pytest.raises(AssertionError):
+        String().split_inclusive('two_more_syms')
+
+def test_collect():
+    assert String('123').collect(str) == '123'
+    assert String('123').collect(list) == ['1', '2', '3']
+    assert String('123').collect(tuple) == ('1', '2', '3')

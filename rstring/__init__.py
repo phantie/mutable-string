@@ -1,7 +1,7 @@
 from __future__ import annotations
 from functools import partialmethod, partial
 from array import array
-from typing import NewType, Union, Callable, Iterable
+from typing import NewType, Union, Callable, Iterable, Generator, Type
 
 from ruption import *
 from take import take
@@ -13,6 +13,10 @@ class String:
 
     init_store: array[u] = partial(array, 'u')
 
+    @staticmethod
+    def _instance_of_store(_):
+        return isinstance(_, array) and _.typecode == 'u'
+
     def __new__(cls, _=None, encoding=None) -> Self:
         if _ is None:
             return super().__new__(cls)
@@ -21,7 +25,7 @@ class String:
 
         if instance_of(str):
             return cls.from_str(_)
-        elif instance_of(array) and _.typecode == 'u':
+        elif cls._instance_of_store(array):
             return cls.from_unicode_array(_)
         elif instance_of(bytes):
             return cls.from_encoding(_, encoding)
@@ -274,9 +278,35 @@ class String:
         last = self.from_unicode_array(self[mid:])
         return first, last
 
-    def lines(self):
+    def lines(self) -> [str]:
         return self.splitlines()
+
+    def __contains__(self, _: Union[array[u], str, Self]) -> bool:
+        if isinstance(_, str):
+            return _ in str(self)
+        elif self._instance_of_store(_):
+            return _.tounicode() in str(self)
+        elif isinstance(_, self.__class__):
+            return str(_) in str(self)
+
+        raise TypeError(f"'in <String>' requires str/String/array[u] as left operand, not {type(_).__qualname__}")
+
+    contains = __contains__
+
+    def split_inclusive(self, sep: u) -> Generator[str]:
+        assert len(sep) == 1
+        def incapsulate_generator():
+            prev = 0
+            for i, _ in enumerate(self, 1):
+                if _ == sep:
+                    yield self[prev:i].tounicode()
+                    prev = i
+            if prev != len(self):
+                yield self[prev:].tounicode()
+        return incapsulate_generator()
+
+    def collect(self, _: Type) -> Any:
+        return _(self)
 
 Self = NewType('Self', String)
 u = NewType('u', str) # unicode character
-
