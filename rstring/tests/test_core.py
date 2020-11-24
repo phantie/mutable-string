@@ -383,3 +383,25 @@ def test_collect():
     assert String('123').collect(str) == '123'
     assert String('123').collect(list) == ['1', '2', '3']
     assert String('123').collect(tuple) == ('1', '2', '3')
+
+def test_char_index():
+    assert String('123').char_index('2') == some(1)
+    assert String('123').char_index('3') == some(2)
+    assert String('123').char_index('4') == none
+
+def test_char_rindex():
+    assert String('123123').rchar_index('2') == some(4)
+    assert String('123123').rchar_index('3') == some(5)
+    assert String('123123').rchar_index('4') == none
+
+def test_split_once():
+    assert String('123').split_once('1') == some(('', '23'))
+    assert String('123').split_once('2') == some(('1', '3'))
+    assert String('123').split_once('3') == some(('12', ''))
+    assert String('123').split_once('4') == none
+
+def test_rsplit_once():
+    assert String('123123').rsplit_once('1') == some(('123', '23'))
+    assert String('123123').rsplit_once('2') == some(('1231', '3'))
+    assert String('123123').rsplit_once('3') == some(('12312', ''))
+    assert String('123123').rsplit_once('4') == none
