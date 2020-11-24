@@ -322,14 +322,14 @@ class String:
         opt_idx = self.char_index(u)
         if opt_idx is none: return none
         first, last = self.split_at(opt_idx.unwrap())
-        last = last.take_from(1)
+        last.remove(0)
         return some((str(first), str(last)))
 
     def rsplit_once(self, u: u) -> Option[(str, str)]:
         opt_idx = self.rchar_index(u)
         if opt_idx is none: return none
         first, last = self.split_at(opt_idx.unwrap())
-        last = last.take_from(1)
+        last.remove(0)
         return some((str(first), str(last)))
 
 Self = NewType('Self', String)

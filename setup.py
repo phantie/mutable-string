@@ -12,6 +12,5 @@ setup(
     install_requires=[
           'take @ https://github.com/phantie/take/archive/1.0.zip',
           'ruption @ https://github.com/phantie/ruption/archive/master.zip#egg=option-1.3',
-          'pytest',
       ]
 )
