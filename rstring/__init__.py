@@ -32,11 +32,10 @@ class String:
         
         try:
             iter(_)
-        except TypeError: ...
+        except TypeError:
+            raise TypeError(f'{cls.__qualname__} cannot be created from {_.__class__}')
         else:
             return cls.from_iterable(_)
-
-        raise TypeError(f'{cls.__qualname__} cannot be created from {_.__class__}')
 
     _str_attrs = set(_ for _ in dir(str) if not _.startswith('__')).union(set(('removeprefix', 'removesuffix')))
 
@@ -111,7 +110,6 @@ class String:
     __len__ = len = lambda self: self.has.__len__()
     length = property(len)
 
-
     def as_bytes(self, encoding) -> [int]:
         return list(bytearray(str(self), encoding))
 
@@ -140,7 +138,6 @@ class String:
             return some(_)
         except IndexError:
             return none
-
 
     def retain(self, f: Callable[[u], bool]):
         self._set_store_from_iterable((_ for _ in self.has if f(_)))
@@ -173,11 +170,13 @@ class String:
         return len(self) == 0
 
     def split_off(self, at: int) -> Self:
-        self._check_bounds(at)
-
-        _ = self.from_unicode_array(self[at:])
+        _ = self.take_from(at)
         self.truncate(at)
         return _
+
+    def take_from(self, idx: int) -> Self:
+        self._check_bounds(idx)
+        return self.from_unicode_array(self[idx:])
 
     def clear(self):
         self[:] = self.init_store()
@@ -255,7 +254,6 @@ class String:
             if recurr:
                 self.strip_suffix(suffix, True)
 
-
     removesuffix = strip_suffix
 
     def __mul__(self, other: int) -> Self:
@@ -324,14 +322,14 @@ class String:
         opt_idx = self.char_index(u)
         if opt_idx is none: return none
         first, last = self.split_at(opt_idx.unwrap())
-        last = last.split_off(1)
+        last = last.take_from(1)
         return some((str(first), str(last)))
 
     def rsplit_once(self, u: u) -> Option[(str, str)]:
         opt_idx = self.rchar_index(u)
         if opt_idx is none: return none
         first, last = self.split_at(opt_idx.unwrap())
-        last = last.split_off(1)
+        last = last.take_from(1)
         return some((str(first), str(last)))
 
 Self = NewType('Self', String)
