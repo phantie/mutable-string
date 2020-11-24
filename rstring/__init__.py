@@ -11,7 +11,7 @@ __all__ = ('String',)
 class String:
     'Mutable, change-friendly, feature-rich String.'
 
-    init_store = partial(array, 'u')
+    init_store: array[u] = partial(array, 'u')
 
     def __new__(cls, _=None, encoding=None) -> Self:
         if _ is None:
@@ -54,7 +54,7 @@ class String:
             return self.has == _.has
         elif isinstance(_, str):
             return self.as_str() == _
-        raise False
+        return False
 
     def __ne__(self, _) -> bool:
         if isinstance(_, self.__class__):
@@ -254,7 +254,7 @@ class String:
 
     removesuffix = strip_suffix
 
-    def __mul__(self, other) -> Self:
+    def __mul__(self, other: int) -> Self:
         if isinstance(other, int):
             return self.from_unicode_array(self[:]*other)
         else:
@@ -263,11 +263,20 @@ class String:
     repeat = __rmul__ = __mul__
 
     @classmethod
-    def has_custom_impl(cls, methodname):
+    def has_custom_impl(cls, methodname: str) -> bool:
         if methodname in cls._str_attrs:
             return methodname in dir(cls)
         else:
             raise AttributeError(f'{str} has no method named "{methodname}" ')
 
+    def split_at(self, mid: int) -> (Self, Self):
+        first = self.from_unicode_array(self[:mid])
+        last = self.from_unicode_array(self[mid:])
+        return first, last
+
+    def lines(self):
+        return self.splitlines()
+
 Self = NewType('Self', String)
 u = NewType('u', str) # unicode character
+

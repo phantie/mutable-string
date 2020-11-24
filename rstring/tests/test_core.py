@@ -354,3 +354,12 @@ def test_multiply():
 def test_has_custom_impl():
     assert String.has_custom_impl('removeprefix')
     assert String.has_custom_impl('removesuffix')
+
+def test_split_at():
+    assert String('mice').split_at(2) == ('mi', 'ce')
+    assert String('12345').split_at(3) == ('123', '45')
+
+def test_lines():
+    assert String('foo\r\nbar\n\nbaz\n').lines() == ['foo', 'bar', '', 'baz']
+    assert String('foo\nbar\n\r\nbaz').lines() == ['foo', 'bar', '', 'baz']
+    assert String('foo\nbar\n\r\nbaz\n\x20\x20').lines() == ['foo', 'bar', '', 'baz', '  ']
