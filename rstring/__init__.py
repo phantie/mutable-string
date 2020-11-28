@@ -25,7 +25,7 @@ class String:
 
         if instance_of(str):
             return cls.from_str(_)
-        elif cls._instance_of_store(array):
+        elif cls._instance_of_store(_):
             return cls.from_unicode_array(_)
         elif instance_of(bytes):
             return cls.from_encoding(_, encoding)
