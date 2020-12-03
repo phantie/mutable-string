@@ -2,6 +2,7 @@ import pytest
 from .. import String
 from ruption import *
 from array import array
+from take import take
 
 def test_instance_creation():
     assert str(String()) == ''
@@ -405,3 +406,9 @@ def test_rsplit_once():
     assert String('123123').rsplit_once('2') == some(('1231', '3'))
     assert String('123123').rsplit_once('3') == some(('12312', ''))
     assert String('123123').rsplit_once('4') == none
+
+def test_reverse():
+    assert take(String('1234')).reverse().unwrap() == '4321'
+    assert take(String('abc')).reverse().unwrap() == 'cba'
+    assert take(String('')).reverse().unwrap() == ''
+    assert take(String('121')).reverse().unwrap() == '121'

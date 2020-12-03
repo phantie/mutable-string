@@ -11,7 +11,7 @@ __all__ = ('String',)
 class String:
     'Mutable, change-friendly, feature-rich String.'
 
-    init_store: array[u] = partial(array, 'u')
+    init_store = partial(array, 'u')
 
     @staticmethod
     def _instance_of_store(_):
@@ -167,7 +167,7 @@ class String:
         return len(self) != 0
 
     def is_empty(self) -> bool:
-        return len(self) == 0
+        return not bool(self)
 
     def split_off(self, at: int) -> Self:
         _ = self.take_from(at)
@@ -331,6 +331,9 @@ class String:
         first, last = self.split_at(opt_idx.unwrap())
         last.remove(0)
         return some((str(first), str(last)))
+
+    def reverse(self):
+        self[:] = self[::-1]
 
 Self = NewType('Self', String)
 u = NewType('u', str) # unicode character
