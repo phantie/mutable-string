@@ -412,3 +412,13 @@ def test_reverse():
     assert take(String('abc')).reverse().unwrap() == 'cba'
     assert take(String('')).reverse().unwrap() == ''
     assert take(String('121')).reverse().unwrap() == '121'
+
+def test_trim():
+    _ = '   a b c  '
+    assert take(String(_)).trim().unwrap() == 'a b c'
+    assert take(String(_)).trimr().unwrap() == '   a b c'
+    assert take(String(_)).triml().unwrap() == 'a b c  '
+    _ = ''
+    assert take(String(_)).trim().unwrap() == ''
+    assert take(String(_)).trimr().unwrap() == '' 
+    assert take(String(_)).triml().unwrap() == ''

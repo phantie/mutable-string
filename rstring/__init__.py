@@ -335,5 +335,15 @@ class String:
     def reverse(self):
         self[:] = self[::-1]
 
+    def trim(self):
+        self.trimr()
+        self.triml()
+
+    def trimr(self):
+        self.removesuffix('\x20', recurr=True)
+
+    def triml(self):
+        self.removeprefix('\x20', recurr=True)
+
 Self = NewType('Self', String)
 u = NewType('u', str) # unicode character
