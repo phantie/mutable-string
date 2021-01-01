@@ -422,3 +422,35 @@ def test_trim():
     assert take(String(_)).trim().unwrap() == ''
     assert take(String(_)).trimr().unwrap() == '' 
     assert take(String(_)).triml().unwrap() == ''
+
+def test_bool():
+    assert String('123')
+    assert not String('')
+
+def test_comp():
+    a, b = '123', '4567'
+    assert (a < b) == (String(a) < String(b)) == (String(a) < b) == (a < String(b))
+    a, b = 'fdhdfh', 'dshfg'
+    assert (a > b) == (String(a) > String(b)) == (String(a) > b) == (a > String(b))
+    a, b = '123qwe', 'qwe123'
+    assert (a <= b) == (String(a) <= String(b)) == (String(a) <= b) == (a <= String(b))
+    a, b = 'zx1c', 'zx2c'
+    assert (a >= b) == (String(a) >= String(b)) == (String(a) >= b) == (a >= String(b))
+
+def test_trim_num():
+    assert take(String('123')).trim_num(0).unwrap() == '123'
+    assert take(String('123')).trim_num(1).unwrap() == '2'
+    assert take(String('123')).trim_num(2).unwrap() == ''
+    
+    assert take(String('123')).trimr_num(0).unwrap() == '123'
+    assert take(String('123')).trimr_num(1).unwrap() == '12'
+    assert take(String('123')).trimr_num(2).unwrap() == '1'
+    assert take(String('123')).trimr_num(3).unwrap() == ''
+    assert take(String('123')).trimr_num(4).unwrap() == ''
+
+    assert take(String('123')).triml_num(0).unwrap() == '123'
+    assert take(String('123')).triml_num(1).unwrap() == '23'
+    assert take(String('123')).triml_num(2).unwrap() == '3'
+    assert take(String('123')).triml_num(3).unwrap() == ''
+    assert take(String('123')).triml_num(4).unwrap() == ''
+

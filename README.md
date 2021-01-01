@@ -15,15 +15,15 @@ Create:
 
 Convert back to `str`:
 ```python
-    _ = String('123')
-    assert str(_) == '123'
+    assert str(String('123')) == '123'
 ```
 It implements (probably) all the magic methods of `str`. And also a bunch of traditional methods:
 
     char_index, char_indices, chars, clear, contains (__contains__), copy, drain, extend, insert, insert_str, 
     is_empty (!__bool__), lines, map, pop, push, push_str, rchar_index, remove, removeprefix (strip_prefix), 
     removesuffix (strip_suffix), repeat (__mul__), replace_range, retain (filter), rsplit_once, split_at,
-    split_inclusive, split_off, split_once, take_from, truncate, __str__ ( as_str to_str), reverse, trim, trimr, triml.
+    split_inclusive, split_off, split_once, take_from, truncate, __str__ ( as_str to_str), reverse, trim,
+    trimr, triml.
 Refer to source code and tests for more.
 
 Classmethods:

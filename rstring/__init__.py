@@ -66,6 +66,42 @@ class String:
             return self.as_str() != _
         return True
 
+    def __ge__(self, _):
+        if isinstance(_, self.__class__):
+            _ = str(_)
+        elif isinstance(_, str):
+            ...
+        else:
+            raise TypeError("'>=' not supported between instances of 'String' and", repr(_.__class__.__name__))
+        return str(self) >= _
+
+    def __le__(self, _):
+        if isinstance(_, self.__class__):
+            _ = str(_)
+        elif isinstance(_, str):
+            ...
+        else:
+            raise TypeError("'<=' not supported between instances of 'String' and", repr(_.__class__.__name__))
+        return str(self) <= _
+
+    def __gt__(self, _):
+        if isinstance(_, self.__class__):
+            _ = str(_)
+        elif isinstance(_, str):
+            ...
+        else:
+            raise TypeError("'>' not supported between instances of 'String' and", repr(_.__class__.__name__))
+        return str(self) > _
+
+    def __lt__(self, _):
+        if isinstance(_, self.__class__):
+            _ = str(_)
+        elif isinstance(_, str):
+            ...
+        else:
+            raise TypeError("'<' not supported between instances of 'String' and", repr(_.__class__.__name__))
+        return str(self) < _
+
     @classmethod
     def from_str(cls, string: str) -> Self:
         new = cls()
@@ -162,9 +198,6 @@ class String:
     def insert_str(self, idx: int, string: str):
         for i, s in enumerate(string):
             self.insert(idx + i, s)
-
-    def __bool__(self) -> bool:
-        return len(self) != 0
 
     def is_empty(self) -> bool:
         return not bool(self)
@@ -344,6 +377,20 @@ class String:
 
     def triml(self):
         self.removeprefix('\x20', recurr=True)
+
+    def triml_num(self, num: int):
+        assert num >= 0
+        self[:] = self[num:]
+
+    def trimr_num(self, num: int):
+        assert num >= 0
+        end = len(self)-num
+        self[:] = self[:end if end > 0 else 0]
+
+    def trim_num(self, num: int):
+        assert num >= 0
+        self.trimr_num(num)
+        self.triml_num(num)
 
 Self = NewType('Self', String)
 u = NewType('u', str) # unicode character
