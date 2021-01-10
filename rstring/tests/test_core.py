@@ -364,7 +364,6 @@ def test_lines():
 def test_in():
     assert '123' in String('asdas123123a')
     assert String('123') in String('asdas123123a')
-    assert array('u', '123') in String('asdas123123a')
     assert String('asdas123123a').contains('123')
 
 def test_split_inclusive():

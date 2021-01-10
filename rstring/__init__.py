@@ -7,7 +7,7 @@ from ruption import some, none
 from take import take
 
 __all__ = ('String',)
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 
 class String(array):
@@ -18,17 +18,15 @@ class String(array):
         if not o:
             return super().__new__(cls, 'u')
 
-        cases = {
-            str: cls.from_str,
-            array: cls.from_unicode_array,
-            bytes: cls.from_encoding,
-        }
+        o_cls_inh = set(o.__class__.__mro__)
 
-        try:
-            return cases[o.__class__](o, encoding)
-        except KeyError:
-            pass
-        
+        if str in o_cls_inh:
+            return cls.from_str(o)
+        elif array in o_cls_inh:
+            return cls.from_unicode_array(o)
+        elif bytes in o_cls_inh:
+            return cls.from_encoding(o, encoding)
+
         try:
             iter(o)
         except TypeError:
@@ -95,7 +93,7 @@ class String(array):
             raise TypeError("'<' not supported between instances of 'String' and", repr(_.__class__.__name__))
 
     @classmethod
-    def from_str(cls, string: str, _ = None) -> Self:
+    def from_str(cls, string: str) -> Self:
         new = super().__new__(cls, 'u')
         new.push_str(string)
         return new
@@ -107,7 +105,7 @@ class String(array):
         return new
 
     @classmethod
-    def from_unicode_array(cls, uar: array[u], _ = None) -> Self:
+    def from_unicode_array(cls, uar: array[u]) -> Self:
         new = super().__new__(cls, 'u')
         new[:] = uar
         return new
@@ -295,8 +293,6 @@ class String(array):
     def __contains__(self, _: Union[array[u], str, Self]) -> bool:
         if isinstance(_, str):
             return _ in str(self)
-        elif isinstance(self, array):
-            return _.tounicode() in str(self)
         elif isinstance(_, self.__class__):
             return str(_) in str(self)
 
@@ -306,7 +302,7 @@ class String(array):
 
     def split_inclusive(self, sep: u) -> Generator[str]:
         assert len(sep) == 1
-        def incapsulate_generator():
+        def incapsulated_generator():
             prev = 0
             for i, _ in enumerate(self, 1):
                 if _ == sep:
@@ -314,7 +310,7 @@ class String(array):
                     prev = i
             if prev != len(self):
                 yield self[prev:].tounicode()
-        return incapsulate_generator()
+        return incapsulated_generator()
 
     def collect(self, _: Type) -> Any:
         return _(self)
