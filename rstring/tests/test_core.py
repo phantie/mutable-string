@@ -50,15 +50,11 @@ def test_length(base):
 def test_from_utf8():
     assert str(String.from_utf8('hello'.encode('utf-8'))) == 'hello' 
 
-def test_store(base):
-    assert isinstance(base.has, array)
+def test_entity(base):
+    assert isinstance(base, array)
     base.push_str('1234')
-    assert isinstance(base.has, array)
-    assert String.init_store('1234') == array('u', ['1', '2', '3', '4'])
-    assert base.has == String.init_store('1234')
+    assert isinstance(base, array)
     base.push('5')
-    assert base.has == String.init_store('12345')
-    assert String.from_str('1234').has == String.init_store('1234')
 
 def test_convert_to_str(base):
 

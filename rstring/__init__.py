@@ -1,67 +1,63 @@
 from __future__ import annotations
-from functools import partialmethod, partial
+from functools import partialmethod
 from array import array
 from typing import NewType, Union, Callable, Iterable, Generator, Type
 
-from ruption import *
+from ruption import some, none
 from take import take
 
 __all__ = ('String',)
+__version__ = '0.5'
 
-class String:
+
+class String(array):
     'Mutable, change-friendly, feature-rich String.'
 
-    init_store = partial(array, 'u')
+    def __new__(cls, o=None, encoding=None) -> Self:
 
-    @staticmethod
-    def _instance_of_store(_):
-        return isinstance(_, array) and _.typecode == 'u'
+        if not o:
+            return super().__new__(cls, 'u')
 
-    def __new__(cls, _=None, encoding=None) -> Self:
-        if _ is None:
-            return super().__new__(cls)
+        cases = {
+            str: cls.from_str,
+            array: cls.from_unicode_array,
+            bytes: cls.from_encoding,
+        }
 
-        instance_of = partial(isinstance, _)
-
-        if instance_of(str):
-            return cls.from_str(_)
-        elif cls._instance_of_store(_):
-            return cls.from_unicode_array(_)
-        elif instance_of(bytes):
-            return cls.from_encoding(_, encoding)
+        try:
+            return cases[o.__class__](o, encoding)
+        except KeyError:
+            pass
         
         try:
-            iter(_)
+            iter(o)
         except TypeError:
-            raise TypeError(f'{cls.__qualname__} cannot be created from {_.__class__}')
+            raise TypeError(f'{cls.__qualname__} cannot be created from {o.__class__}')
         else:
-            return cls.from_iterable(_)
+            return cls.from_iterable(o)
 
     _str_attrs = set(_ for _ in dir(str) if not _.startswith('__')).union(set(('removeprefix', 'removesuffix')))
 
     def __getattr__(self, name):
-        if name == 'has':
-            self.has = has = self.init_store()
-            return has
-        elif name in self._str_attrs:
+        if name in self._str_attrs:
             return lambda *args, **kwargs: getattr(str, name)(str(self), *args, **kwargs)
 
         raise AttributeError(name)
 
     @classmethod
     def new(cls) -> Self:
-        return cls()
+        return super().__new__(cls, 'u')
 
     def __eq__(self, _) -> bool:
         if isinstance(_, self.__class__):
-            return self.has == _.has
+            return super().__eq__(_)
         elif isinstance(_, str):
             return self.as_str() == _
         return False
 
     def __ne__(self, _) -> bool:
         if isinstance(_, self.__class__):
-            return self.has != _.has
+            return super().__ne__(_)
         elif isinstance(_, str):
             return self.as_str() != _
         return True
@@ -103,20 +99,20 @@ class String:
         return str(self) < _
 
     @classmethod
-    def from_str(cls, string: str) -> Self:
-        new = cls()
+    def from_str(cls, string: str, _ = None) -> Self:
+        new = super().__new__(cls, 'u')
         new.push_str(string)
         return new
 
     @classmethod
     def from_iterable(cls, iterable: Iterable) -> Self:
-        new = cls()
+        new = super().__new__(cls, 'u')
         new.extend(iterable)
         return new
 
     @classmethod
-    def from_unicode_array(cls, uar: array[u]) -> Self:
-        new = cls()
+    def from_unicode_array(cls, uar: array[u], _ = None) -> Self:
+        new = super().__new__(cls, 'u')
         new[:] = uar
         return new
 
@@ -126,44 +122,32 @@ class String:
 
     from_utf8 = partialmethod(from_encoding, encoding='utf-8')
 
-    def extend(self, iterable: Iterable):
-        self.has.extend(iterable)
-
     def push(self, _: u):
-        self.has.append(_)
+        self.append(_)
 
     def push_str(self, _: str):
-        self.has.fromunicode(_)
+        self.fromunicode(_)
 
     def __str__(self) -> str:
-        return self.has.tounicode()
+        return self.tounicode()
 
     to_str = as_str = __str__
 
     def __repr__(self) -> str:
         return f'String("{self}")'
 
-    __len__ = len = lambda self: self.has.__len__()
+    len = lambda self: self.__len__()
     length = property(len)
 
     def as_bytes(self, encoding) -> [int]:
         return list(bytearray(str(self), encoding))
-
-    def __getitem__(self, key) -> Union[u, array[u]]:
-        return self.has.__getitem__(key)
-
-    def __setitem__(self, key, value):
-        self.has.__setitem__(key, value)
-
-    def __delitem__(self, key):
-        self.has.__delitem__(key)
 
     def truncate(self, new_len: int):
         self[:] = self[:new_len]
 
     def pop(self) -> Option[u]:
         try:
-            return some(self.has.pop())
+            return some(super().pop())
         except IndexError:
             return none
 
@@ -176,7 +160,7 @@ class String:
             return none
 
     def retain(self, f: Callable[[u], bool]):
-        self._set_store_from_iterable((_ for _ in self.has if f(_)))
+        self._set_store_from_iterable((_ for _ in self if f(_)))
 
     filter = retain
 
@@ -193,7 +177,7 @@ class String:
 
     def insert(self, idx: int, u: u):
         self._check_bounds(idx)
-        self.has.insert(idx, u)
+        super().insert(idx, u)
 
     def insert_str(self, idx: int, string: str):
         for i, s in enumerate(string):
@@ -212,17 +196,17 @@ class String:
         return self.from_unicode_array(self[idx:])
 
     def clear(self):
-        self[:] = self.init_store()
+        self[:] = self[:0]
 
     def drain(self, rng: range) -> Self:
         self._check_range_bounds(rng)
 
-        _ = self.init_store()
+        _ = self.new()
 
         for i, r in enumerate(rng):
-            _.append(self.remove(r-i).unwrap())
+            _.push(self.remove(r-i).unwrap())
 
-        return self.from_unicode_array(_)
+        return _
 
     def replace_range(self, rng: range, replace_with: str):
         self._check_range_bounds(rng)
@@ -234,7 +218,7 @@ class String:
         self.insert_str(rng[0], replace_with)
 
     def _set_store_from_iterable(self, iterable: Iterable):
-        self[:] = self.init_store(iterable)
+        self[:] = self.from_iterable(iterable)
 
     def chars(self) -> Iterable[u]:
         return iter(self)
@@ -249,7 +233,7 @@ class String:
 
     def __add__(self, _) -> Self:
         if isinstance(_, self.__class__):
-            return take(self.copy()).extend(_.has).unwrap()
+            return take(self.copy()).extend(_).unwrap()
         elif isinstance(_, str):
             return take(self.copy()).push_str(_).unwrap()
         else:
@@ -315,7 +299,7 @@ class String:
     def __contains__(self, _: Union[array[u], str, Self]) -> bool:
         if isinstance(_, str):
             return _ in str(self)
-        elif self._instance_of_store(_):
+        elif isinstance(self, array):
             return _.tounicode() in str(self)
         elif isinstance(_, self.__class__):
             return str(_) in str(self)
@@ -341,13 +325,13 @@ class String:
 
     def char_index(self, u: u) -> Option[int]:
         try:
-            return some(self.has.index(u))
+            return some(self.index(u))
         except ValueError:
             return none
 
     def rchar_index(self, u: u) -> Option[int]:
         try:
-            return some(len(self) - 1 - self.has[::-1].index(u))
+            return some(len(self) - 1 - self[::-1].index(u))
         except ValueError:
             return none
 

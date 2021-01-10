@@ -1,6 +1,6 @@
 # mutable-string
 
-basically a wrapper over array of unicode characters: fast inserts, deletions, replacements, slices, etc. supports all the `str` class methods if does not provide custom implementation itself. works for py3.7+. 
+extension over array of unicode characters: fast inserts, deletions, replacements, slices, etc. supports all the `str` class methods if does not provide custom implementation itself. works for py3.7+. 
 
 Create:
 
