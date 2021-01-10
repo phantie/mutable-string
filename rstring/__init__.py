@@ -7,7 +7,7 @@ from ruption import some, none
 from take import take
 
 __all__ = ('String',)
-__version__ = '0.5'
+__version__ = '0.5.1'
 
 
 class String(array):
@@ -64,39 +64,35 @@ class String(array):
 
     def __ge__(self, _):
         if isinstance(_, self.__class__):
-            _ = str(_)
+            return super().__ge__(_)
         elif isinstance(_, str):
-            ...
+            return str(self) >= _
         else:
             raise TypeError("'>=' not supported between instances of 'String' and", repr(_.__class__.__name__))
-        return str(self) >= _
 
     def __le__(self, _):
         if isinstance(_, self.__class__):
-            _ = str(_)
+            return super().__le__(_)
         elif isinstance(_, str):
-            ...
+            return str(self) <= _
         else:
             raise TypeError("'<=' not supported between instances of 'String' and", repr(_.__class__.__name__))
-        return str(self) <= _
 
     def __gt__(self, _):
         if isinstance(_, self.__class__):
-            _ = str(_)
+            return super().__gt__(_)
         elif isinstance(_, str):
-            ...
+            return str(self) > _
         else:
             raise TypeError("'>' not supported between instances of 'String' and", repr(_.__class__.__name__))
-        return str(self) > _
 
     def __lt__(self, _):
         if isinstance(_, self.__class__):
-            _ = str(_)
+            return super().__lt__(_)
         elif isinstance(_, str):
-            ...
+            return str(self) < _
         else:
             raise TypeError("'<' not supported between instances of 'String' and", repr(_.__class__.__name__))
-        return str(self) < _
 
     @classmethod
     def from_str(cls, string: str, _ = None) -> Self:
