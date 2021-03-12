@@ -7,20 +7,20 @@ from ruption import some, none
 from take import take
 
 __all__ = ('String',)
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 
 
 def no_mut(f):
     if __debug__:
         @wraps(f)
         def wrap(self, *args, **kwargs):
-            before = self.new()
-            before[:] = self[:]
-
+            before = self[:]
             after = self
 
             result = f(self, *args, **kwargs)
-            assert after[:] == before[:]
+
+            assert after[:] == before
+
             return result
         return wrap
     else:
