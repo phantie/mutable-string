@@ -1,5 +1,5 @@
 from __future__ import annotations
-from functools import partialmethod
+from functools import partialmethod, wraps
 from array import array
 from typing import NewType, Union, Callable, Iterable, Generator, Type
 
@@ -10,9 +10,27 @@ __all__ = ('String',)
 __version__ = '0.5.2'
 
 
+def no_mut(f):
+    if __debug__:
+        @wraps(f)
+        def wrap(self, *args, **kwargs):
+            before = self.new()
+            before[:] = self[:]
+
+            after = self
+
+            result = f(self, *args, **kwargs)
+            assert after[:] == before[:]
+            return result
+        return wrap
+    else:
+        return f
+
+
 class String(array):
     'Mutable, change-friendly, feature-rich String.'
 
+    @staticmethod
     def __new__(cls, o=None, encoding=None) -> Self:
 
         if not o:
@@ -28,11 +46,11 @@ class String(array):
             return cls.from_encoding(o, encoding)
 
         try:
-            iter(o)
+            iterable = iter(o)
         except TypeError:
             raise TypeError(f'{cls.__qualname__} cannot be created from {o.__class__}')
         else:
-            return cls.from_iterable(o)
+            return cls.from_iterable(iterable)
 
     _str_attrs = set(_ for _ in dir(str) if not _.startswith('__')).union(set(('removeprefix', 'removesuffix')))
 
@@ -46,6 +64,7 @@ class String(array):
     def new(cls) -> Self:
         return super().__new__(cls, 'u')
 
+    @no_mut
     def __eq__(self, _) -> bool:
         if isinstance(_, self.__class__):
             return super().__eq__(_)
@@ -53,6 +72,7 @@ class String(array):
             return self.as_str() == _
         return False
 
+    @no_mut
     def __ne__(self, _) -> bool:
         if isinstance(_, self.__class__):
             return super().__ne__(_)
@@ -60,6 +80,7 @@ class String(array):
             return self.as_str() != _
         return True
 
+    @no_mut
     def __ge__(self, _):
         if isinstance(_, self.__class__):
             return super().__ge__(_)
@@ -68,6 +89,7 @@ class String(array):
         else:
             raise TypeError("'>=' not supported between instances of 'String' and", repr(_.__class__.__name__))
 
+    @no_mut
     def __le__(self, _):
         if isinstance(_, self.__class__):
             return super().__le__(_)
@@ -76,6 +98,7 @@ class String(array):
         else:
             raise TypeError("'<=' not supported between instances of 'String' and", repr(_.__class__.__name__))
 
+    @no_mut
     def __gt__(self, _):
         if isinstance(_, self.__class__):
             return super().__gt__(_)
@@ -84,6 +107,7 @@ class String(array):
         else:
             raise TypeError("'>' not supported between instances of 'String' and", repr(_.__class__.__name__))
 
+    @no_mut
     def __lt__(self, _):
         if isinstance(_, self.__class__):
             return super().__lt__(_)
@@ -122,17 +146,20 @@ class String(array):
     def push_str(self, _: str):
         self.fromunicode(_)
 
+    @no_mut
     def __str__(self) -> str:
         return self.tounicode()
 
     to_str = as_str = __str__
 
+    @no_mut
     def __repr__(self) -> str:
         return f'String("{self}")'
 
     len = lambda self: self.__len__()
     length = property(len)
 
+    @no_mut
     def as_bytes(self, encoding) -> [int]:
         return list(bytearray(str(self), encoding))
 
@@ -177,6 +204,7 @@ class String(array):
         for i, s in enumerate(string):
             self.insert(idx + i, s)
 
+    @no_mut
     def is_empty(self) -> bool:
         return not bool(self)
 
@@ -214,17 +242,21 @@ class String(array):
     def _set_store_from_iterable(self, iterable: Iterable):
         self[:] = self.from_iterable(iterable)
 
+    @no_mut
     def chars(self) -> Iterable[u]:
         return iter(self)
 
+    @no_mut
     def char_indices(self) -> Iterable[(int, u)]:
         return enumerate(self)
 
+    @no_mut
     def copy(self) -> Self:
         new = self.new()
         new[:] = self[:]
         return new
 
+    @no_mut
     def __add__(self, _) -> Self:
         if isinstance(_, self.__class__):
             return take(self.copy()).extend(_).unwrap()
@@ -233,6 +265,7 @@ class String(array):
         else:
             raise NotImplementedError(_)
 
+    @no_mut
     def __radd__(self, _) -> Self:
         if isinstance(_, str):
             return take(self.copy()).insert_str(0, _).unwrap()
@@ -243,8 +276,8 @@ class String(array):
         if len(prefix) > len(self):
             return
 
-        for i, c in enumerate(prefix):
-            if self[i] != c:
+        for this, opposite in zip(self, prefix):
+            if this != opposite:
                 break
         else:
             self[:] = self[len(prefix):]
@@ -257,8 +290,8 @@ class String(array):
         if len(suffix) > len(self):
             return
 
-        for c1, c2 in zip(self[-len(suffix):], suffix):
-            if c1 != c2:
+        for this, opposite in zip(self[-len(suffix):], suffix):
+            if this != opposite:
                 break
         else:
             self[:] = self[:len(self) - len(suffix)]
@@ -267,6 +300,7 @@ class String(array):
 
     removesuffix = strip_suffix
 
+    @no_mut
     def __mul__(self, other: int) -> Self:
         if isinstance(other, int):
             return self.from_unicode_array(self[:]*other)
@@ -282,14 +316,17 @@ class String(array):
         else:
             raise AttributeError(f'{str} has no method named "{methodname}" ')
 
+    @no_mut
     def split_at(self, mid: int) -> (Self, Self):
         first = self.from_unicode_array(self[:mid])
         last = self.from_unicode_array(self[mid:])
         return first, last
 
+    @no_mut
     def lines(self) -> [str]:
         return self.splitlines()
 
+    @no_mut
     def __contains__(self, _: Union[array[u], str, Self]) -> bool:
         if isinstance(_, str):
             return _ in str(self)
@@ -300,6 +337,7 @@ class String(array):
 
     contains = __contains__
 
+    @no_mut
     def split_inclusive(self, sep: u) -> Generator[str]:
         assert len(sep) == 1
         def incapsulated_generator():
@@ -315,18 +353,21 @@ class String(array):
     def collect(self, _: Type) -> Any:
         return _(self)
 
+    @no_mut
     def char_index(self, u: u) -> Option[int]:
         try:
             return some(self.index(u))
         except ValueError:
             return none
 
+    @no_mut
     def rchar_index(self, u: u) -> Option[int]:
         try:
             return some(len(self) - 1 - self[::-1].index(u))
         except ValueError:
             return none
 
+    @no_mut
     def split_once(self, u: u) -> Option[(str, str)]:
         opt_idx = self.char_index(u)
         if opt_idx is none: return none
@@ -334,6 +375,7 @@ class String(array):
         last.remove(0)
         return some((str(first), str(last)))
 
+    @no_mut
     def rsplit_once(self, u: u) -> Option[(str, str)]:
         opt_idx = self.rchar_index(u)
         if opt_idx is none: return none
@@ -368,5 +410,5 @@ class String(array):
         self.trimr_num(num)
         self.triml_num(num)
 
-Self = NewType('Self', String)
+Self = String
 u = NewType('u', str) # unicode character

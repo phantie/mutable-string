@@ -28,7 +28,7 @@ Refer to source and tests for more.
 
 Classmethods:
 
-    __new__, new, from_str, from_iterable, from_unicode_array, from_encoding, from_utf8, has_custom_impl
+    new, from_str, from_iterable, from_unicode_array, from_encoding, from_utf8, has_custom_impl
     
 Install:
 
